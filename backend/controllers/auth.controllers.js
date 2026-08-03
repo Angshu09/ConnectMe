@@ -1,4 +1,3 @@
-
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import generateToken from "../config/token.js";
@@ -31,23 +30,29 @@ export const signUp = async (req, res) => {
         message: "Password must be at least 8 characters long.",
       });
     }
+
     if (!hasLetter) {
       return res.status(400).json({
-        message: "Password needs at least one letter.",
-      });
-    }
-    if (!hasNumber) {
-      return res.status(400).json({
-        message: "Password needs at least one number.",
-      });
-    }
-    if (!hasSpecial) {
-      return res.status(400).json({
-        message: "Password needs at least one special character.",
+        message: "Password must contain at least one letter.",
       });
     }
 
-    const hashedPassword =await bcrypt.hash(password, Number(process.env.SALT));
+    if (!hasNumber) {
+      return res.status(400).json({
+        message: "Password must contain at least one number.",
+      });
+    }
+
+    if (!hasSpecial) {
+      return res.status(400).json({
+        message: "Password must contain at least one special character.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      password,
+      Number(process.env.SALT),
+    );
 
     const user = await User.create({
       userName,
@@ -60,7 +65,7 @@ export const signUp = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 4 * 24 * 60 * 60 * 1000,
-      sameSite: "None",
+      sameSite: "Strict",
       secure: false,
     });
 
@@ -94,7 +99,7 @@ export const login = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 4 * 24 * 60 * 60 * 1000,
-      sameSite: "None",
+      sameSite: "Strict",
       secure: false,
     });
 
